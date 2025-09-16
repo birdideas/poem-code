@@ -51,7 +51,7 @@ char *ingest_file(filename, buf, size)
     char *filename, *buf;
     off_t size;
 {
-    char tmp_buffer[TMP_BUFFER_SIZE];
+    char tmp_buffer[TMP_BUFFER_SIZE] = {0};
     FILE *fp;
 
     if(size >= MAX_BUFFER_SIZE) {
@@ -80,7 +80,7 @@ char *ingest_file(filename, buf, size)
 void filter_text(buf)
     char *buf;
 {
-    char big_tmp_buffer[MAX_BUFFER_SIZE];
+    char big_tmp_buffer[MAX_BUFFER_SIZE] = {0};
     char c;
     int i = 0, j = 0;
 
@@ -109,7 +109,7 @@ int main(argc, argv)
 
     off_t filesize;
 
-    char read_buffer[MAX_BUFFER_SIZE];
+    char read_buffer[MAX_BUFFER_SIZE] = {0};
     char *current;
 
     for(i = 1; i < argc; ++i) {

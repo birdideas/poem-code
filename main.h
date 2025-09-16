@@ -18,4 +18,5 @@
 
 off_t fsize(const char *filename);
 char *ingest_file(char *filename, char *buf, off_t size);
+void filter_text(char *buf);
 int main(int argc, char *argv[]);

@@ -16,13 +16,14 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include "main.h"
 
 #define TMP_BUFFER_SIZE 4096
-#define MAX_BUFFER_SIZE 65536
+#define MAX_BUFFER_SIZE 32768
 
 /* https://stackoverflow.com/questions/8236/ */
 off_t fsize(filename)
@@ -65,7 +66,7 @@ char *ingest_file(filename, buf, size)
     }
 
     while(fgets(tmp_buffer, TMP_BUFFER_SIZE, fp) != NULL) {
-        if(tmp_buffer[0] == '#') {
+        if(tmp_buffer[0] == '#' || tmp_buffer[0] == '\n') {
             continue;
         }
 
@@ -74,6 +75,30 @@ char *ingest_file(filename, buf, size)
 
     fclose(fp);
     return buf;
+}
+
+void filter_text(buf)
+    char *buf;
+{
+    char big_tmp_buffer[MAX_BUFFER_SIZE];
+    char c;
+    int i = 0, j = 0;
+
+    while((c = buf[i++])) {
+        if(c == '\n') {
+            big_tmp_buffer[j++] = ' ';
+            continue;
+        } else if(!isalpha(c) && c != ' ') {
+            continue;
+        } else if(islower(c)) {
+            big_tmp_buffer[j++] = c ^ 32;
+            continue;
+        } else {
+            big_tmp_buffer[j++] = c;
+        }
+    }
+
+    strcpy(buf, big_tmp_buffer);
 }
 
 int main(argc, argv)
@@ -92,6 +117,7 @@ int main(argc, argv)
 
         filesize = fsize(current);
         ingest_file(current, read_buffer, filesize);
+        filter_text(read_buffer);
         puts(read_buffer);
     }
 

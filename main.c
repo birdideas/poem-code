@@ -87,18 +87,17 @@ void filter_text(buf)
     while((c = buf[i++])) {
         if(c == '\n') {
             big_tmp_buffer[j++] = ' ';
-            continue;
         } else if(!isalpha(c) && c != ' ') {
             continue;
         } else if(islower(c)) {
             big_tmp_buffer[j++] = c ^ 32;
-            continue;
         } else {
             big_tmp_buffer[j++] = c;
         }
     }
 
-    strcpy(buf, big_tmp_buffer);
+    strncpy(buf, big_tmp_buffer, j);
+    buf[j] = '\0';
 }
 
 int main(argc, argv)
@@ -118,6 +117,7 @@ int main(argc, argv)
         filesize = fsize(current);
         ingest_file(current, read_buffer, filesize);
         filter_text(read_buffer);
+
         puts(read_buffer);
     }
 

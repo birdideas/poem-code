@@ -17,6 +17,7 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 off_t fsize(const char *filename);
-char *ingest_file(char *filename, char *buf, off_t size);
+char *ingest_file(char *filename, char *buf, off_t size, int *word_indices);
+void word_numbers(char *str, int num_list[5]);
 void filter_text(char *buf);
 int main(int argc, char *argv[]);

@@ -43,12 +43,12 @@ off_t fsize(filename)
 
     ret = stat(filename, &st);
 
-    if(ret != 0) {
+    if (ret != 0) {
         perror("Error reading file stats");
         return -1;
     }
 
-    if(st.st_size <= 0) {
+    if (st.st_size <= 0) {
         perror("Bad filesize");
         return -1;
     }
@@ -71,21 +71,21 @@ char *ingest_file(filename, poem_obj, size)
     char tmp_buffer[TMP_BUFFER_SIZE] = {0};
     FILE *fp;
 
-    if(size >= MAX_BUFFER_SIZE) {
+    if (size >= MAX_BUFFER_SIZE) {
         fprintf(stderr, "File too big!");
         return NULL;
     }
 
     fp = fopen(filename, "r");
-    if(fp == NULL) {
+    if (fp == NULL) {
         perror("Error opening file");
         return NULL;
     }
 
-    while(fgets(tmp_buffer, TMP_BUFFER_SIZE, fp) != NULL) {
-        if(tmp_buffer[0] == '#' || tmp_buffer[0] == '\n') {
+    while (fgets(tmp_buffer, TMP_BUFFER_SIZE, fp) != NULL) {
+        if (tmp_buffer[0] == '#' || tmp_buffer[0] == '\n') {
             continue;
-        } else if(tmp_buffer[0] == '>') {
+        } else if (tmp_buffer[0] == '>') {
             word_numbers(tmp_buffer, poem_obj->word_numbers);
         } else {
             strcat(poem_obj->buf, tmp_buffer);
@@ -121,7 +121,7 @@ void word_numbers(str, num_list)
     str += 1;
 
     num_list[0] = strtol(str, &separator, 10);
-    while(i < WORDS) {
+    while (i < WORDS) {
         num_list[i++] = strtol(separator, &separator, 10);
     }
 }
@@ -133,12 +133,12 @@ void filter_text(buf)
     char c;
     int i = 0, j = 0;
 
-    while((c = buf[i++])) {
-        if(c == '\n') {
+    while ((c = buf[i++])) {
+        if (c == '\n') {
             big_tmp_buffer[j++] = ' ';
-        } else if(!isalpha(c) && c != ' ') {
+        } else if (!isalpha(c) && c != ' ') {
             continue;
-        } else if(islower(c)) {
+        } else if (islower(c)) {
             big_tmp_buffer[j++] = c ^ 32;
         } else {
             big_tmp_buffer[j++] = c;

@@ -31,6 +31,7 @@
 
 struct PoemType {
     char *buf;
+    char **word_positions;
     int *word_numbers;
 };
 
@@ -149,6 +150,38 @@ void filter_text(buf)
     buf[j] = '\0';
 }
 
+/*
+ * strtok_replace loops through a string and finds the desired
+ * words from their indices, all while replacing every space in
+ * our big buffer with a null terminator, so that our five words
+ * can be addressed as strings without copying any memory.
+ *
+ * TODO: strlen not explicitly required here. Function could be
+ * written a little better;
+ */
+void strtok_replace(poem)
+    struct PoemType *poem;
+{
+    static size_t i = 0;
+
+    static int j = 0;
+    static int counted_spaces = 0;
+
+    char curr;
+
+    for (; (curr = poem->buf[i]); ++i) {
+        if (curr != ' ') {
+            continue;
+        }
+
+        if (++counted_spaces == (poem->word_numbers[j] - 1)) {
+            poem->word_positions[j++] = (poem->buf + i + 1);
+        }
+
+        poem->buf[i] = '\0';
+    }
+}
+
 int main(argc, argv)
     int argc;
     char *argv[];
@@ -157,12 +190,16 @@ int main(argc, argv)
     off_t filesize;
 
     int word_indices[WORDS] = {0};
+    char *word_positions[WORDS] = {0};
+
     char read_buffer[MAX_BUFFER_SIZE] = {0};
 
     struct PoemType main_poem;
+    /* Declarations  */
+
     main_poem.buf = read_buffer;
     main_poem.word_numbers = word_indices;
-    /* Declarations  */
+    main_poem.word_positions = word_positions;
 
     (void) argc;
 
@@ -170,8 +207,7 @@ int main(argc, argv)
     ingest_file(argv[1], &main_poem, filesize);
     filter_text(main_poem.buf);
 
-    puts(main_poem.buf);
-
+    strtok_replace(&main_poem);
     return 0;
 }
 

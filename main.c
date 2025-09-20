@@ -29,6 +29,11 @@
 #define TMP_BUFFER_SIZE 4096
 #define MAX_BUFFER_SIZE 32768
 
+struct PoemType {
+    char *buf;
+    int *word_numbers;
+};
+
 /* https://stackoverflow.com/questions/8236/ */
 off_t fsize(filename)
     const char *filename;
@@ -56,15 +61,12 @@ off_t fsize(filename)
  * looping through the file twice, it also reads the
  * word_indices parameter, which is not ideal.
  *
- * TODO: This may be the point at which we start using
- * structs--create an object that contains buf and
- * word_indices, reducing the number of arguments.
  */
 
-char *ingest_file(filename, buf, size, word_indices)
-    char *filename, *buf;
+char *ingest_file(filename, poem_obj, size)
+    char *filename;
+    struct PoemType *poem_obj;
     off_t size;
-    int *word_indices;
 {
     char tmp_buffer[TMP_BUFFER_SIZE] = {0};
     FILE *fp;
@@ -84,14 +86,14 @@ char *ingest_file(filename, buf, size, word_indices)
         if(tmp_buffer[0] == '#' || tmp_buffer[0] == '\n') {
             continue;
         } else if(tmp_buffer[0] == '>') {
-            word_numbers(tmp_buffer, word_indices);
+            word_numbers(tmp_buffer, poem_obj->word_numbers);
         } else {
-            strcat(buf, tmp_buffer);
+            strcat(poem_obj->buf, tmp_buffer);
         }
     }
 
     fclose(fp);
-    return buf;
+    return poem_obj->buf;
 }
 
 /*
@@ -151,23 +153,24 @@ int main(argc, argv)
     int argc;
     char *argv[];
 {
-    int i;
-    int word_indices[WORDS] = {0};
-
+    /* Declarations */
     off_t filesize;
 
+    int word_indices[WORDS] = {0};
     char read_buffer[MAX_BUFFER_SIZE] = {0};
-    char *current;
 
-    for(i = 1; i < argc; ++i) {
-        current = argv[i];
+    struct PoemType main_poem;
+    main_poem.buf = read_buffer;
+    main_poem.word_numbers = word_indices;
+    /* Declarations  */
 
-        filesize = fsize(current);
-        ingest_file(current, read_buffer, filesize, word_indices);
-        filter_text(read_buffer);
+    (void) argc;
 
-        puts(read_buffer);
-    }
+    filesize = fsize(argv[1]);
+    ingest_file(argv[1], &main_poem, filesize);
+    filter_text(main_poem.buf);
+
+    puts(main_poem.buf);
 
     return 0;
 }

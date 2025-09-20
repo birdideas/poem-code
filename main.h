@@ -16,8 +16,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+struct PoemType;
+
 off_t fsize(const char *filename);
-char *ingest_file(char *filename, char *buf, off_t size, int *word_indices);
+char *ingest_file(char *filename, struct PoemType *poem_obj, off_t size);
 void word_numbers(char *str, int num_list[5]);
 void filter_text(char *buf);
 int main(int argc, char *argv[]);

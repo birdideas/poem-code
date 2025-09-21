@@ -157,8 +157,9 @@ void filter_text(poem_obj)
  * our big buffer with a null terminator, so that our five words
  * can be addressed as strings without copying any memory.
  */
-void strtok_replace(poem_obj)
+void strtok_replace(poem_obj, word_indices)
     struct PoemType *poem_obj;
+    int word_indices[WORDS];
 {
     static size_t i = 0;
 
@@ -170,7 +171,12 @@ void strtok_replace(poem_obj)
             continue;
         }
 
-        if (++counted_spaces == (poem_obj->word_indices[j] - 1)) {
+        if (j == WORDS) {
+            poem_obj->buf[i] = '\0';
+            return;
+        }
+
+        if (++counted_spaces == (word_indices[j] - 1)) {
             poem_obj->word_positions[j++] = (poem_obj->buf + i + 1);
         }
 
@@ -220,7 +226,7 @@ int main(argc, argv)
     /* Chopping up our poem for efficient operation */
     filter_text(&main_poem);
     indicator_group(word_indices, indicator);
-    strtok_replace(&main_poem);
+    strtok_replace(&main_poem, word_indices);
 
     /* Debugging */
     puts(indicator);

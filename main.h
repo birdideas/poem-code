@@ -21,6 +21,6 @@ struct PoemType;
 off_t fsize(const char *filename);
 char *ingest_file(struct PoemType *poem_obj, char *filename, off_t size);
 void word_numbers(char *str, int num_list[5]);
-void filter_text(char *buf);
+void filter_text(struct PoemType *poem_obj);
 void strtok_replace(struct PoemType *poem_obj);
 int main(int argc, char *argv[]);

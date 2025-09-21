@@ -31,6 +31,7 @@
 
 struct PoemType {
     char *buf;
+    char *indicator;
 
     size_t filtered_length;
 
@@ -177,32 +178,52 @@ void strtok_replace(poem_obj)
     }
 }
 
+void indicator_group(word_indices, tiny_buf)
+    int word_indices[WORDS];
+    char tiny_buf[WORDS + 1];
+{
+    int i;
+
+    for (i = 0; i < WORDS; ++i) {
+        tiny_buf[i] = ('A' - 1 + word_indices[i]);
+    }
+
+    tiny_buf[i] = '\0';
+}
+
 int main(argc, argv)
     int argc;
     char *argv[];
 {
-    /* Declarations */
     int i = 0;
-
     off_t filesize;
 
-    int word_indices[WORDS] = {0};
-    char *word_positions[WORDS] = {0};
-    char read_buffer[MAX_BUFFER_SIZE] = {0};
+    /* Initializing the big struct */
     struct PoemType main_poem;
-    /* / */
+
+    char read_buffer[MAX_BUFFER_SIZE] = {0};
+    char indicator[WORDS + 1] = {0};
+
+    char *word_positions[WORDS] = {0};
+    int word_indices[WORDS] = {0};
 
     main_poem.buf = read_buffer;
-    main_poem.word_indices = word_indices;
+    main_poem.indicator = indicator;
     main_poem.word_positions = word_positions;
+    main_poem.word_indices = word_indices;
 
+    /* Housekeeping and safely reading our argv[1] */
     (void) argc;
-
     filesize = fsize(argv[1]);
     ingest_file(&main_poem, argv[1], filesize);
-    filter_text(&main_poem);
 
+    /* Chopping up our poem for efficient operation */
+    filter_text(&main_poem);
+    indicator_group(word_indices, indicator);
     strtok_replace(&main_poem);
+
+    /* Debugging */
+    puts(indicator);
     while (i < WORDS) {
         puts(main_poem.word_positions[i++]);
     }

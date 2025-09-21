@@ -23,7 +23,7 @@
 
 #include "main.h"
 
-/* The number of words in a std' poem cipher: */
+/* The number of words in a st'd poem cipher: */
 #define WORDS 5
 
 #define TMP_BUFFER_SIZE 4096
@@ -32,7 +32,7 @@
 struct PoemType {
     char *buf;
     char **word_positions;
-    int *word_numbers;
+    int *word_indices;
 };
 
 /* https://stackoverflow.com/questions/8236/ */
@@ -61,12 +61,10 @@ off_t fsize(filename)
  * ingest_file reads a file into a buffer, but to avoid
  * looping through the file twice, it also reads the
  * word_indices parameter, which is not ideal.
- *
  */
-
-char *ingest_file(filename, poem_obj, size)
-    char *filename;
+char *ingest_file(poem_obj, filename, size)
     struct PoemType *poem_obj;
+    char *filename;
     off_t size;
 {
     char tmp_buffer[TMP_BUFFER_SIZE] = {0};
@@ -87,7 +85,7 @@ char *ingest_file(filename, poem_obj, size)
         if (tmp_buffer[0] == '#' || tmp_buffer[0] == '\n') {
             continue;
         } else if (tmp_buffer[0] == '>') {
-            word_numbers(tmp_buffer, poem_obj->word_numbers);
+            word_numbers(tmp_buffer, poem_obj->word_indices);
         } else {
             strcat(poem_obj->buf, tmp_buffer);
         }
@@ -108,9 +106,6 @@ char *ingest_file(filename, poem_obj, size)
  * I kept all of the objects as ints to keep the program
  * simple, but I should double check what happens when
  * converting from int to long.
- *
- * TODO: I also don't like the line `str += 1`. It feels
- * weird. Should double check.
  */
 void word_numbers(str, num_list)
     char *str;
@@ -119,7 +114,7 @@ void word_numbers(str, num_list)
     int i = 1;
     char *separator;
 
-    str += 1;
+    ++str;
 
     num_list[0] = strtol(str, &separator, 10);
     while (i < WORDS) {
@@ -174,7 +169,7 @@ void strtok_replace(poem)
             continue;
         }
 
-        if (++counted_spaces == (poem->word_numbers[j] - 1)) {
+        if (++counted_spaces == (poem->word_indices[j] - 1)) {
             poem->word_positions[j++] = (poem->buf + i + 1);
         }
 
@@ -187,27 +182,31 @@ int main(argc, argv)
     char *argv[];
 {
     /* Declarations */
+    int i = 0;
+
     off_t filesize;
 
     int word_indices[WORDS] = {0};
     char *word_positions[WORDS] = {0};
-
     char read_buffer[MAX_BUFFER_SIZE] = {0};
-
     struct PoemType main_poem;
-    /* Declarations  */
+    /* / */
 
     main_poem.buf = read_buffer;
-    main_poem.word_numbers = word_indices;
+    main_poem.word_indices = word_indices;
     main_poem.word_positions = word_positions;
 
     (void) argc;
 
     filesize = fsize(argv[1]);
-    ingest_file(argv[1], &main_poem, filesize);
+    ingest_file(&main_poem, argv[1], filesize);
     filter_text(main_poem.buf);
 
     strtok_replace(&main_poem);
+    while (i < WORDS) {
+        puts(main_poem.word_positions[i++]);
+    }
+
     return 0;
 }
 

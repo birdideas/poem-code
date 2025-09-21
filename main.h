@@ -19,7 +19,7 @@
 struct PoemType;
 
 off_t fsize(const char *filename);
-char *ingest_file(char *filename, struct PoemType *poem_obj, off_t size);
+char *ingest_file(struct PoemType *poem_obj, char *filename, off_t size);
 void word_numbers(char *str, int num_list[5]);
 void filter_text(char *buf);
 void strtok_replace(struct PoemType *poem_obj);

@@ -221,7 +221,9 @@ int main(argc, argv)
     /* Housekeeping and safely reading our argv[1] */
     (void) argc;
     filesize = fsize(argv[1]);
-    ingest_file(&main_poem, argv[1], filesize);
+    if (ingest_file(&main_poem, argv[1], filesize) == NULL) {
+        return 1;
+    }
 
     /* Chopping up our poem for efficient operation */
     filter_text(&main_poem);

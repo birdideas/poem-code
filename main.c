@@ -169,18 +169,18 @@ void strtok_replace(poem_obj, word_indices)
     for (; i < poem_obj->filtered_length; ++i) {
         if (poem_obj->buf[i] != ' ') {
             continue;
+        } else {
+            poem_obj->buf[i] = '\0';
         }
 
+        /* Break here to avoid word_indices[5] in the following block */
         if (j == WORDS) {
-            poem_obj->buf[i] = '\0';
-            return;
+            break;
         }
 
         if (++counted_spaces == (word_indices[j] - 1)) {
             poem_obj->word_positions[j++] = (poem_obj->buf + i + 1);
         }
-
-        poem_obj->buf[i] = '\0';
     }
 }
 

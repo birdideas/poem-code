@@ -36,6 +36,7 @@ struct PoemType {
     size_t filtered_length;
 
     char **word_positions;
+    char *transposition_buffer;
     int *word_indices;
 };
 
@@ -178,6 +179,10 @@ void strtok_replace(poem_obj, word_indices)
             break;
         }
 
+        /*
+         * TODO: critical bug: word_positions won't load properly if you choose the first
+         * word as an indicator, because `++counted_spaces == (1 - 1)` will never be true.
+         */
         if (++counted_spaces == (word_indices[j] - 1)) {
             poem_obj->word_positions[j++] = (poem_obj->buf + i + 1);
         }
@@ -197,11 +202,54 @@ void indicator_group(word_indices, tiny_buf)
     tiny_buf[i] = '\0';
 }
 
+void transposition_key(word_positions, transposition_buffer)
+    char *word_positions[WORDS];
+    char *transposition_buffer;
+{
+    char c;
+    int i, j, k;
+    int letter_counts[26] = {0}, suffix_array[26] = {0};
+
+    size_t len;
+    char tmp_buffer[TMP_BUFFER_SIZE] = {0};
+
+    for (i = 0; i < WORDS; ++i) {
+        if (word_positions[i] == NULL) {
+            continue;
+        }
+
+        len = strlen(word_positions[i]);
+        strncat(tmp_buffer, word_positions[i], len);
+    }
+
+    for (j = 0; (c = tmp_buffer[j]); ++j) {
+        ++letter_counts[c - 'A'];
+    }
+
+    for (k = 0; k < 26; ++k) {
+        /* This branch is called if your key has no letter A */
+        if (letter_counts[k] == 0 && k == 0) {
+            continue;
+        /* This branch is called if any other letter is not present */
+        } else if (letter_counts[k] == 0 && k != 0) {
+            suffix_array[k] = suffix_array[k-1];
+        /* This branch is called if your key does have a specific letter */
+        } else {
+            suffix_array[k] = suffix_array[k-1] + letter_counts[k];
+        }
+    }
+
+    for (i = 0; (c = tmp_buffer[i]); ++i) {
+        transposition_buffer[i] = suffix_array[c - 'A']++ - letter_counts[c - 'A'] + 1;
+    }
+}
+
 int main(argc, argv)
     int argc;
     char *argv[];
 {
     int i = 0;
+    size_t j;
     off_t filesize;
 
     /* Initializing the big struct */
@@ -211,11 +259,13 @@ int main(argc, argv)
     char indicator[WORDS + 1] = {0};
 
     char *word_positions[WORDS] = {0};
+    char transposition_buffer[MAX_BUFFER_SIZE] = {0};
     int word_indices[WORDS] = {0};
 
     main_poem.buf = read_buffer;
     main_poem.indicator = indicator;
     main_poem.word_positions = word_positions;
+    main_poem.transposition_buffer = transposition_buffer;
     main_poem.word_indices = word_indices;
 
     /* Housekeeping and safely reading our argv[1] */
@@ -230,10 +280,18 @@ int main(argc, argv)
     indicator_group(word_indices, indicator);
     strtok_replace(&main_poem, word_indices);
 
+    /* Encryption starts here */
+    transposition_key(main_poem.word_positions, transposition_buffer);
+    for (j = 0; j < strlen(transposition_buffer); ++j) {
+        printf("%d ", transposition_buffer[j]);
+    }
+
     /* Debugging */
+    (void) i;
     puts(indicator);
     while (i < WORDS) {
-        puts(main_poem.word_positions[i++]);
+        printf(">>> %p %s\n", main_poem.word_positions[i], main_poem.word_positions[i]);
+        i++;
     }
 
     return 0;

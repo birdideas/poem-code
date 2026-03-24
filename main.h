@@ -24,4 +24,5 @@ void word_numbers(char *str, int num_list[5]);
 void filter_text(struct PoemType *poem_obj);
 void strtok_replace(struct PoemType *poem_obj, int word_indices[5]);
 void indicator_group(int word_indices[5], char tiny_buf[6]);
+void transposition_key(char *word_positions[5], char *transposition_buffer);
 int main(int argc, char *argv[]);

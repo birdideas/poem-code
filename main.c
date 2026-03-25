@@ -40,6 +40,18 @@ struct PoemType {
     int *word_indices;
 };
 
+void print_array(a, len)
+    int *a;
+    int len;
+{
+    int i;
+
+    for (i = 0; i < len; ++i) {
+        printf("%d ", a[i]);
+    }
+    putchar('\n');
+}
+
 /* https://stackoverflow.com/questions/8236/ */
 off_t fsize(filename)
     const char *filename;
@@ -179,11 +191,10 @@ void strtok_replace(poem_obj, word_indices)
             break;
         }
 
-        /*
-         * TODO: critical bug: word_positions won't load properly if you choose the first
-         * word as an indicator, because `++counted_spaces == (1 - 1)` will never be true.
-         */
-        if (++counted_spaces == (word_indices[j] - 1)) {
+        if (counted_spaces == 0 && word_indices[0] == 1) {
+            poem_obj->word_positions[j++] = poem_obj->buf;
+            counted_spaces++;
+        } else if (++counted_spaces == (word_indices[j] - 1)) {
             poem_obj->word_positions[j++] = (poem_obj->buf + i + 1);
         }
     }
@@ -285,10 +296,12 @@ int main(argc, argv)
     for (j = 0; j < strlen(transposition_buffer); ++j) {
         printf("%d ", transposition_buffer[j]);
     }
+    putchar('\n');
 
     /* Debugging */
     (void) i;
-    puts(indicator);
+    print_array(word_indices, 5);
+    /* puts(indicator); */
     while (i < WORDS) {
         printf(">>> %p %s\n", main_poem.word_positions[i], main_poem.word_positions[i]);
         i++;

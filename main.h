@@ -18,6 +18,7 @@
 
 struct PoemType;
 
+void print_array(int *a, int len);
 off_t fsize(const char *filename);
 char *ingest_file(struct PoemType *poem_obj, char *filename, off_t size);
 void word_numbers(char *str, int num_list[5]);
